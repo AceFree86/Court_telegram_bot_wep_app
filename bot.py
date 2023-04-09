@@ -88,14 +88,13 @@ async def bot_message(message: types.Message):
                              reply_markup=keyboard.btn_court_list_markup())
     elif text == '📩Сповіщення':
         await message.answer(f"{message.from_user.first_name} {str_container.push}",
-                             reply_markup=keyboard.btn_back_markup('🔙_Назат_'))
+                             reply_markup=keyboard.btn_push_markup())
         await GetUserData.input_user.set()
     elif text == '📋Список Ваших запис':
+        await GetUserData.input_user
         await message.answer(f"{message.from_user.first_name} щоб видалити Ваш запис виберіть зі списку та "
                              f"натисніть на нього. Список записів :",
-                             reply_markup=keyboard.btn_back_markup('🔙_Назат_'))
-        await GetUserData.input_user.set()
-
+                             reply_markup=keyboard.btn_callback_list("dfgdfg"))
 
 
 @dp.message_handler(state="*", commands=['cancel'])

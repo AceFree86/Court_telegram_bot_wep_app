@@ -17,6 +17,7 @@ def create_main_markup():
             .add(KeyboardButton(text='📃Електронний Суд'), KeyboardButton(text='☎️Контактні данні'))
             .add(KeyboardButton(text="✍🏻Зв'язатися з адміном"), KeyboardButton(text='📢Оголошення про виклик')))
 
+
 def btn_court_list_markup():
     return (ReplyKeyboardMarkup(resize_keyboard=True)
             .row(KeyboardButton(text='📅Перечинський р-н суд', web_app=WebAppInfo(url=wep_url[0]['url'])),
@@ -57,6 +58,17 @@ def btn_markup(name):
             .add(KeyboardButton(name))
             .add(btnMain))
 
+
+def btn_push_markup():
+    return (ReplyKeyboardMarkup(resize_keyboard=True)
+            .add(KeyboardButton(text='📋Список Ваших запис'))
+            .add(KeyboardButton(text='🔙_Назат_')))
+
+def btn_callback_list(callback):
+    buttons = [InlineKeyboardButton(text=f"Розклад засідань {i}", callback_data=callback) for i in range(1, 6)]
+    return (InlineKeyboardMarkup(row_width=1)
+            .add(InlineKeyboardButton(*buttons))
+            .add(InlineKeyboardButton(text="🔙Назат", callback_data='callback_')))
 
 def btn_back_markup(name):
     return (ReplyKeyboardMarkup(resize_keyboard=True)
