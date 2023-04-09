@@ -11,7 +11,7 @@ from aiogram.utils import executor
 import keyboards as keyboard
 import servis
 import string_container as str_container
-from config import TOKEN, CHANNEL_ID
+from config import TOKEN, CHANNEL_ID, MASTER
 from data_base import Database
 
 logging.basicConfig(level=logging.INFO)
@@ -48,8 +48,9 @@ async def handle_list_command(message: types.Message):
 
 @dp.message_handler(commands=['admin'])
 async def handle_admin_command(message: types.Message):
-    await message.answer(f"{message.from_user.first_name} пропишіть текст розсилки.",
-                         reply_markup=keyboard.btn_back_markup('🔙_Назат_'))
+    if MASTER in message.from_user.id:
+        await message.answer(f"{message.from_user.first_name} пропишіть текст розсилки.",
+                             reply_markup=keyboard.btn_back_markup('🔙_Назат_'))
     await GetUserData.input_admin.set()
 
 
@@ -117,7 +118,7 @@ async def handle_cancel_state(message: types.Message, state: FSMContext):
     if text == '📋Список Ваших запис':
         await message.answer(str_container.delete_list, reply_markup=keyboard.btn_callback_list(message.from_user.id))
     else:
-        await message.answer('OK!👌 все скасовано.', reply_markup=keyboard.main_markup())
+        await message.answer('OK!👌 скасовано.', reply_markup=keyboard.main_markup())
 
 
 @dp.message_handler(state=[GetUserData.input_user,
