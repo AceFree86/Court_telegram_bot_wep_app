@@ -57,38 +57,38 @@ async def bot_message(message: types.Message):
     elif text == '☎️Контактні данні':
         name = '🗺Карти проїзду'
         await message.answer(f"{message.from_user.first_name} <u><b>{str_container.contact}",
-                             reply_markup=keyboard.create_markup(name))
+                             reply_markup=keyboard.btn_markup(name))
     elif text == '🗺Карти проїзду':
         await message.answer("Карти проїзду 🚗. Натисніть на кнопку, щоб переміститися на бажану карту",
-                             reply_markup=keyboard.create_btn_main_markup())
+                             reply_markup=keyboard.btn_main_markup())
         with open("foto/perechin.jpg", "rb") as foto:
             name = "Переміститися на Apple Карту"
             url = "https://maps.apple.com/place?address=48.735389,22.476694&q"
-            await message.answer_photo(foto, reply_markup=keyboard.create_empty_url_markup(name, url))
+            await message.answer_photo(foto, reply_markup=keyboard.btn_url_markup(name, url))
         with open("foto/perechin1.jpg", "rb") as foto:
             name = "Переміститися на Google Карту"
             url = "https://goo.gl/maps/sNThx2MEs5VCuy2z9"
-            await message.answer_photo(foto, reply_markup=keyboard.create_empty_url_markup(name, url))
+            await message.answer_photo(foto, reply_markup=keyboard.btn_url_markup(name, url))
     elif text == '📢Оголошення про виклик':
         name = "Переміститися в Оголошення"
         url = "https://pr.zk.court.gov.ua/sud0708/gromadyanam//"
         await message.answer(f"{message.from_user.first_name} {str_container.notice}",
-                             reply_markup=keyboard.create_empty_url_markup(name, url))
+                             reply_markup=keyboard.btn_url_markup(name, url))
     elif text == '📃Електронний Суд':
         with open("foto/electroniccourt.jpg", "rb") as foto:
             await message.answer_photo(foto, f"{message.from_user.first_name} {str_container.electronic_court}",
-                                       reply_markup=keyboard.create_app_markup())
+                                       reply_markup=keyboard.btn_app_markup())
     elif text == '📲Завантажити офіційний мобільний додаток єСуд':
-        await message.answer(f"{str_container.court_app}", reply_markup=keyboard.create_download_app_markup())
+        await message.answer(f"{str_container.court_app}", reply_markup=keyboard.btn_lis_app_markup())
     elif text == "✍🏻Зв'язатися з адміном":
         await message.answer(f"{message.from_user.first_name} {str_container.list_court}",
-                             reply_markup=keyboard.create_court_list_markup())
+                             reply_markup=keyboard.btn_court_list_markup())
     elif text == '📅Дата засідання':
         await message.answer(f"{message.from_user.first_name} {str_container.meeting_date}",
-                             reply_markup=keyboard.create_court_list_markup())
+                             reply_markup=keyboard.btn_court_list_markup())
     elif text == '📩Сповіщення':
         await message.answer(f"{message.from_user.first_name} {str_container.push}",
-                             reply_markup=keyboard.create_back_markup('🔙_Назат_'))
+                             reply_markup=keyboard.btn_back_markup('🔙_Назат_'))
         await GetUserData.input_user.set()
 
 
@@ -117,7 +117,7 @@ async def callback_btn(callback_query: types.CallbackQuery):
     index = str_container.callback_mapping.get(callback_query.data)
     if index is not None:
         await callback_query.message.answer(f"{callback_query.from_user.first_name} {str_container.meeting_date}",
-                                            reply_markup=keyboard.create_court_list_markup())
+                                            reply_markup=keyboard.btn_court_list_markup())
         await callback_query.answer("Розділ 📅Дата засідання")
 
 

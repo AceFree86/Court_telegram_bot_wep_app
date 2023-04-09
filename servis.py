@@ -27,7 +27,7 @@ async def show_list(message):
     await bot.send_message(message.chat.id, result, reply_markup=nav.create_main_markup())
 
 
-async def forma_date(date_string):
+async def format_date(date_string):
     try:
         date_obj = datetime.strptime(date_string, '%Y-%m-%d')
     except ValueError:
@@ -39,30 +39,29 @@ async def read_wep_app(web_app_message):
     json_data = web_app_message.web_app_data
     json_str = json_data.data
     index = str_container.button_mapping.get(json_data.button_text)
-    print(json_str)
-    print(index)
+
     if json_str is not None and index is not None:
         pad_file = str_container.json_files[index]
         str_data = json.loads(json_str)
-        print(str_data)
-        with open(pad_file["pad"], "r", encoding="utf-8") as f:
+
+        with open(pad_file['pad'], 'r', encoding='utf-8') as f:
             file_content = f.read()
             data = json.loads(file_content)
 
-            f_str = await forma_date(str_data['dob'])
-            filtered_data = [i for i in data if f_str in i["date"]
-                             or f_str.lower().replace('"', " ").replace("'", " ") in i["involved"]
+            format_str = await format_date(str_data['dob'])
+            filtered_data = [i for i in data if format_str in i['date']
+                             or format_str.lower().replace('"', " ").replace("'", " ") in i['involved']
                              .lower().replace('"', " ").replace("'", " ")
-                             or f_str in i["number"]
-                             and str_data['formset'] in i["forma"]
-                             and str_data['court'] in i["judge"]]
+                             or format_str in i['number']
+                             and str_data['formset'] in i['forma']
+                             and str_data['court'] in i['judge']]
 
             if not filtered_data:
                 option = str_container.callback_btn[index]
                 await bot.send_message(web_app_message.chat.id,
                                        "Якщо нічого не з'явилося, можливо справа ще не призначена до розгляду або Ви"
                                        " вибрали вихідний день. Ви також можете відвідати вебпортал.",
-                                       reply_markup=nav.create_empty_callback_markup(option["url"], option["callback"]))
+                                       reply_markup=nav.btn_callback_markup(option["url"], option["callback"]))
                 return
 
             for i in filtered_data:
@@ -71,4 +70,4 @@ async def read_wep_app(web_app_message):
                         f"Дата/Час : <b>{i['date']}</b> год.\n"
                         f"Сторони по справі:\n<b>{i['involved']}</b>\n"
                         f"Суть : <b>{i['description']}</b>")
-                await bot.send_message(web_app_message.chat.id, news, reply_markup=nav.create_court_list_markup())
+                await bot.send_message(web_app_message.chat.id, news, reply_markup=nav.btn_court_list_markup())
