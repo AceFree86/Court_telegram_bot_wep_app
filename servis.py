@@ -14,7 +14,8 @@ database = Database()
 
 
 async def show_list(message):
-    result = "Статистика користувачів:\n\n" + "\n".join(f"{row[0]}: {row[2]}" for row in database.user_list())
+    result = "Статистика користувачів:\n\n" + "\n".join(f"{row[0]}: {row[2]} -  {row[3]};"
+                                                        for row in database.user_list())
     await bot.send_message(message.chat.id, result, reply_markup=keyboard.main_markup())
 
 
@@ -56,9 +57,12 @@ async def read_wep_app(web_app_message):
                 return
 
             for i in filtered_data:
-                news = (f"Суддя : {i['judge']}\n"
+                url = 'https://example.com'
+                news = (f"<a href='{url}'>Дата/Час</a> : <b>{i['date']}</b> год.\n"
                         f"Номер справи : {i['number']}\n"
-                        f"Дата/Час : <b>{i['date']}</b> год.\n"
-                        f"Сторони по справі:\n<b>{i['involved']}</b>\n"
-                        f"Суть : <b>{i['description']}</b>")
+                        f"Суддя : {i['judge']}"
+                        f"\n__________\n"
+                        f"<a href='{url}'>Сторони по справі</a> : <b>{i['involved']}</b>.\n"
+                        f"<a href='{url}'>Суть</a> : <b>{i['description']}</b>."
+                        f"\n__________")
                 await bot.send_message(web_app_message.chat.id, news, reply_markup=keyboard.btn_court_list_markup())

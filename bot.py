@@ -116,7 +116,12 @@ async def handle_cancel_state(message: types.Message, state: FSMContext):
     await state.finish()
     text = message.text
     if text == '📋Список Ваших запис':
-        await message.answer(str_container.delete_list, reply_markup=keyboard.btn_callback_list(message.from_user.id))
+        if not database.exists_list_id(message.from_user.id):
+            await message.answer(str_container.delete_list,
+                                 reply_markup=keyboard.btn_callback_list(message.from_user.id))
+        else:
+            await message.answer(f"{message.from_user.first_name} у Вас не має записів.",
+                                 reply_markup=keyboard.main_markup())
     else:
         await message.answer('OK!👌 скасовано.', reply_markup=keyboard.main_markup())
 
@@ -134,14 +139,15 @@ async def handle_state(message: types.Message, state: FSMContext):
         await message.answer(f"{message.from_user.first_name} 🤚даний запис Ви вже вносили 😎.",
                              reply_markup=keyboard.main_markup())
 
-    if await state.get_state() in 'GetUserData:input_admin':
+    current_state = await state.get_state()
+    if current_state in 'GetUserData:input_admin':
         await message.answer(f"{message.from_user.first_name} розсилка розпочалася 😎.")
         for row in database.user_list():
             await bot.send_message(row[1], message.text, reply_markup=keyboard.main_markup())
             await asyncio.sleep(20)
         await message.answer(f"{message.from_user.first_name} розсилка виконана 😎.",
                              reply_markup=keyboard.main_markup())
-    elif await state.get_state() in 'GetUserData:sent_admin':
+    elif current_state in 'GetUserData:sent_admin':
         await bot.send_message(CHANNEL_ID, f"{message.from_user.first_name} {message.text}.")
     await state.finish()
 
@@ -159,7 +165,7 @@ async def callback_state(callback_query: types.CallbackQuery):
     elif callback_query.data == 'callback_delete':
         row_number = database.delete_all_user_list_input(callback_query.from_user.id)
         await callback_query.message.answer(f"{callback_query.from_user.first_name} всі записи видалено {row_number}.",
-                                            reply_markup=keyboard.btn_court_list_markup())
+                                            reply_markup=keyboard.main_markup())
         await callback_query.answer('Розділ 📩Сповіщення')
     else:
         callback_number = callback_query.data.split('_')

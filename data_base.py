@@ -34,6 +34,11 @@ class Database:
             result = self.cursor.execute("SELECT * FROM list_user_input WHERE USER_INPUT = ?", (user_input,)).fetchall()
             return bool(len(result))
 
+    def exists_list_id(self, user_id):
+        with self.connection:
+            result = self.cursor.execute("SELECT * FROM list_user_input WHERE USER_ID = ?", (user_id,)).fetchall()
+            return bool(len(result))
+
     def delete_user_list_input(self, user_input):
         with self.connection:
             self.cursor.execute("DELETE FROM list_user_input WHERE USER_INPUT = ?", (user_input,))
