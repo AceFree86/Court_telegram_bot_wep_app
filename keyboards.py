@@ -13,7 +13,7 @@ database = Database()
 btnMain = KeyboardButton(text='🔙Назат в меню')
 
 
-def create_main_markup():
+def main_markup():
     return (ReplyKeyboardMarkup(resize_keyboard=True)
             .row(KeyboardButton(text='📅Дата засідання'), KeyboardButton(text='📩Сповіщення'))
             .add(KeyboardButton(text='📃Електронний Суд'), KeyboardButton(text='☎️Контактні данні'))

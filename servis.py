@@ -15,7 +15,7 @@ database = Database()
 
 async def show_list(message):
     result = "Статистика користувачів:\n\n" + "\n".join(f"{row[0]}: {row[2]}" for row in database.user_list())
-    await bot.send_message(message.chat.id, result, reply_markup=keyboard.create_main_markup())
+    await bot.send_message(message.chat.id, result, reply_markup=keyboard.main_markup())
 
 
 async def format_date(date_string):
@@ -48,7 +48,7 @@ async def read_wep_app(web_app_message):
                              and str_data['court'] in i['judge']]
 
             if not filtered_data:
-                option = str_container.callback_btn[index]
+                option = str_container.url_btn[index]
                 await bot.send_message(web_app_message.chat.id,
                                        "Якщо нічого не з'явилося, можливо справа ще не призначена до розгляду або Ви"
                                        " вибрали вихідний день. Ви також можете відвідати вебпортал.",
