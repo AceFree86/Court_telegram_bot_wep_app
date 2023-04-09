@@ -5,8 +5,10 @@ from aiogram.types import (
     InlineKeyboardButton,
 )
 from aiogram.types.web_app_info import WebAppInfo
-
 from string_container import wep_url
+from data_base import Database
+
+database = Database()
 
 btnMain = KeyboardButton(text='🔙Назат в меню')
 
@@ -64,11 +66,15 @@ def btn_push_markup():
             .add(KeyboardButton(text='📋Список Ваших запис'))
             .add(KeyboardButton(text='🔙_Назат_')))
 
-def btn_callback_list(callback):
-    buttons = [InlineKeyboardButton(text=f"Розклад засідань {i}", callback_data=callback) for i in range(1, 6)]
+
+def btn_callback_list(user_id):
+    buttons = [InlineKeyboardButton(text=f"{row[2]}",
+                                    callback_data=f"callback_{row[2]}") for row in database.user_list_input(user_id)]
     return (InlineKeyboardMarkup(row_width=1)
-            .add(InlineKeyboardButton(*buttons))
-            .add(InlineKeyboardButton(text="🔙Назат", callback_data='callback_')))
+            .add(*buttons)
+            .add(InlineKeyboardButton(text="Видалити все", callback_data='callback_delete'))
+            .add(InlineKeyboardButton(text="🔙Назат", callback_data='callback_main')))
+
 
 def btn_back_markup(name):
     return (ReplyKeyboardMarkup(resize_keyboard=True)

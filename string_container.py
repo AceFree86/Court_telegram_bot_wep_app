@@ -79,10 +79,10 @@ url_data = [
 ]
 
 callback_btn = [
-    {"url": "https://pr.zk.court.gov.ua/sud0708/gromadyanam/csz/", "callback": "callback_pr"},
-    {"url": "https://zka.court.gov.ua/sud4806/gromadyanam/csz/", "callback": "callback_appel"},
-    {"url": "https://ug.zk.court.gov.ua/sud0712/gromadyanam/csz/", "callback": "callback_uz"},
-    {"url": "https://vb.zk.court.gov.ua/sud0702/gromadyanam/csz/", "callback": "callback_vb"}
+    {"url": "https://pr.zk.court.gov.ua/sud0708/gromadyanam/csz/"},
+    {"url": "https://zka.court.gov.ua/sud4806/gromadyanam/csz/"},
+    {"url": "https://ug.zk.court.gov.ua/sud0712/gromadyanam/csz/"},
+    {"url": "https://vb.zk.court.gov.ua/sud0702/gromadyanam/csz/"}
 ]
 
 wep_url = [

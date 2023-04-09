@@ -1,29 +1,21 @@
 import json
-import sqlite3
 from datetime import datetime
 
 from aiogram import Bot, types
 
-import keyboards as nav
+import keyboards as keyboard
 import string_container as str_container
 from config import TOKEN
+from data_base import Database
 
 bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)
 
-conn = sqlite3.connect("subscriber.db")
-
-
-async def sql_add_search_value(user_input):
-    cur = conn.cursor()
-    cur.execute("INSERT INTO list_user_input (USER_ID, USER_INPUT, STATE) VALUES (?, ?, ?)", tuple(user_input.values()))
-    conn.commit()
+database = Database()
 
 
 async def show_list(message):
-    cur = conn.cursor()
-    rows = cur.execute("SELECT * FROM list_user").fetchall()
-    result = "Статистика користувачів:\n\n" + "\n".join(f"{row[0]}: {row[2]}" for row in rows)
-    await bot.send_message(message.chat.id, result, reply_markup=nav.create_main_markup())
+    result = "Статистика користувачів:\n\n" + "\n".join(f"{row[0]}: {row[2]}" for row in database.user_list())
+    await bot.send_message(message.chat.id, result, reply_markup=keyboard.create_main_markup())
 
 
 async def format_date(date_string):
@@ -60,7 +52,7 @@ async def read_wep_app(web_app_message):
                 await bot.send_message(web_app_message.chat.id,
                                        "Якщо нічого не з'явилося, можливо справа ще не призначена до розгляду або Ви"
                                        " вибрали вихідний день. Ви також можете відвідати вебпортал.",
-                                       reply_markup=nav.btn_callback_markup(option["url"], option["callback"]))
+                                       reply_markup=keyboard.btn_callback_markup(option["url"], "callback_date"))
                 return
 
             for i in filtered_data:
@@ -69,4 +61,4 @@ async def read_wep_app(web_app_message):
                         f"Дата/Час : <b>{i['date']}</b> год.\n"
                         f"Сторони по справі:\n<b>{i['involved']}</b>\n"
                         f"Суть : <b>{i['description']}</b>")
-                await bot.send_message(web_app_message.chat.id, news, reply_markup=nav.btn_court_list_markup())
+                await bot.send_message(web_app_message.chat.id, news, reply_markup=keyboard.btn_court_list_markup())
