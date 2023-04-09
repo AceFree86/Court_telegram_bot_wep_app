@@ -72,14 +72,14 @@ async def handle_message(message: types.Message):
     elif text == '🗺Карти проїзду':
         await message.answer(str_container.map_str, reply_markup=keyboard.btn_main_markup())
         with open('foto/perechin.jpg', 'rb') as foto:
-            option = str_container.url_btn[0]
+            option = str_container.name_btn[0]
             await message.answer_photo(foto, reply_markup=keyboard.btn_url_markup(option["name"], option["url"]))
         with open('foto/perechin1.jpg', 'rb') as foto:
-            option = str_container.url_btn[1]
+            option = str_container.name_btn[1]
             await message.answer_photo(foto, reply_markup=keyboard.btn_url_markup(option["name"], option["url"]))
 
     elif text == '📢Оголошення про виклик':
-        option = str_container.url_btn[2]
+        option = str_container.name_btn[2]
         await message.answer(f"{message.from_user.first_name} {str_container.notice}",
                              reply_markup=keyboard.btn_url_markup(option["name"], option["url"]))
 
@@ -150,6 +150,7 @@ async def callback_state(callback_query: types.CallbackQuery):
     await bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     if callback_query.data == 'callback_main':
         await callback_query.message.answer('Головне меню.', reply_markup=keyboard.main_markup())
+        await callback_query.answer('Розділ Головне меню')
     elif callback_query.data == 'callback_date':
         await callback_query.message.answer(f"{callback_query.from_user.first_name} {str_container.meeting_date}",
                                             reply_markup=keyboard.btn_court_list_markup())
@@ -158,11 +159,13 @@ async def callback_state(callback_query: types.CallbackQuery):
         row_number = database.delete_all_user_list_input(callback_query.from_user.id)
         await callback_query.message.answer(f"{callback_query.from_user.first_name} всі записи видалено {row_number}.",
                                             reply_markup=keyboard.btn_court_list_markup())
+        await callback_query.answer('Розділ 📩Сповіщення')
     else:
         callback_number = callback_query.data.split('_')
         database.delete_user_list_input(callback_number[1])
         await callback_query.message.answer(f"Зі списка видалено {callback_number[1]} залишилося :",
                                             reply_markup=keyboard.btn_callback_list(callback_query.from_user.id))
+        await callback_query.answer('Розділ 📩Сповіщення')
 
 
 if __name__ == "__main__":
