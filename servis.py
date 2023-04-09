@@ -17,7 +17,6 @@ async def sql_add_search_value(user_input):
     cur = conn.cursor()
     cur.execute("INSERT INTO list_user_input (USER_ID, USER_INPUT, STATE) VALUES (?, ?, ?)", tuple(user_input.values()))
     conn.commit()
-    conn.close()
 
 
 async def show_list(message):

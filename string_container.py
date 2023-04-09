@@ -69,7 +69,7 @@ url_data = [
     {"url": "https://pr.zk.court.gov.ua/new.php", "payload": "q_court_id=0708",
      "referer": "https://pr.zk.court.gov.ua/sud0708/gromadyanam/csz/", "file_name": "data/data_pr00.json"},
     {"url": "https://pr.zk.court.gov.ua/new.php", "payload": "q_court_id=0708",
-     "referer": "https://pr.zk.court.gov.ua/sud0708/gromadyanam/csz/", "file_name": "data/data_pr00.json"},
+     "referer": "https://pr.zk.court.gov.ua/sud0708/gromadyanam/csz/", "file_name": "data/data_pr.json"},
     {"url": "https://zka.court.gov.ua/new.php", "payload": "q_court_id=4806",
      "referer": "https://zka.court.gov.ua/sud4806/gromadyanam/csz/", "file_name": "data/data_zka.json"},
     {"url": "https://ug.zk.court.gov.ua/new.php", "payload": "q_court_id=0712",

@@ -90,6 +90,12 @@ async def bot_message(message: types.Message):
         await message.answer(f"{message.from_user.first_name} {str_container.push}",
                              reply_markup=keyboard.btn_back_markup('🔙_Назат_'))
         await GetUserData.input_user.set()
+    elif text == '📋Список Ваших запис':
+        await message.answer(f"{message.from_user.first_name} щоб видалити Ваш запис виберіть зі списку та "
+                             f"натисніть на нього. Список записів :",
+                             reply_markup=keyboard.btn_back_markup('🔙_Назат_'))
+        await GetUserData.input_user.set()
+
 
 
 @dp.message_handler(state="*", commands=['cancel'])
@@ -107,7 +113,7 @@ async def pass_handler(message: types.Message, state: FSMContext):
 async def regUser_handler(message: types.Message, state: FSMContext):
     user_input = {"USER_ID": message.from_user.id, "USER_INPUT": message.text, "STATE": 1}
     await servis.sql_add_search_value(user_input)
-    await message.answer(f"{message.from_user.first_name}", reply_markup=keyboard.create_main_markup())
+    await message.answer(f"{message.from_user.first_name} Ви підписалися👍, очікуйте на сповіщення 😎.", reply_markup=keyboard.create_main_markup())
     await state.finish()
 
 
