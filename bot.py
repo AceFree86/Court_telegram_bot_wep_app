@@ -31,8 +31,8 @@ class GetUserData(StatesGroup):
 @dp.message_handler(commands=["start", "help"])
 async def start(message: types.Message):
     if message.chat.type == 'private':
-        if not database.user_exists(message.from_user.id):
-            database.add_user(message.from_user.id, message.from_user.first_name)
+        if not database.sql_exists_user(message.from_user.id):
+            database.sql_insert_user(message.from_user.id, message.from_user.first_name)
         await message.answer(f"👋Доброго дня {message.from_user.first_name}!")
         await asyncio.sleep(1)
         with open('foto/PRC.jpg', 'rb') as foto:
@@ -111,7 +111,7 @@ async def handle_message(message: types.Message):
 
 
 @dp.message_handler(state='*', commands=['cancel'])
-@dp.message_handler(Text(equals=['🔙_Назат_', '📋Список Ваших запис'], ignore_case=True), state='*')
+@dp.message_handler(Text(equals=['🔙_Назат_','📋Список Ваших запис'],ignore_case=True), state='*')
 async def handle_cancel_state(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:
@@ -119,7 +119,7 @@ async def handle_cancel_state(message: types.Message, state: FSMContext):
     await state.finish()
     text = message.text
     if text == '📋Список Ваших запис':
-        if not database.exists_list_id(message.from_user.id):
+        if not database.sql_exists_list_id(message.from_user.id):
             await message.answer(f"{message.from_user.first_name} у Вас не має записів.",
                                  reply_markup=keyboard.main_markup())
         else:
@@ -134,17 +134,22 @@ async def handle_cancel_state(message: types.Message, state: FSMContext):
                            GetUserData.sent_admin], content_types=types.ContentTypes.TEXT)
 async def handle_state(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
-    if not database.exists_list_input(message.text) and current_state in 'GetUserData:input_user':
+    # if input is first sent
+    if not database.sql_exists_list_input(message.from_user.id,
+                                          message.text) and current_state in 'GetUserData:input_user':
         user_input = {"USER_ID": message.from_user.id, "USER_INPUT": message.text, "STATE": 1}
-        database.sql_add_search_value(user_input)
+        database.sql_insert_search_value(user_input)
         await message.answer(f"{message.from_user.first_name} Ви підписалися👍, очікуйте на сповіщення 😎.",
                              reply_markup=keyboard.main_markup())
-    elif database.exists_list_input(message.text) and current_state in 'GetUserData:input_user':
+    # if input is repeating
+    elif database.sql_exists_list_input(message.from_user.id,
+                                        message.text) and current_state in 'GetUserData:input_user':
         await message.answer(f"{message.from_user.first_name} 🤚даний запис Ви вже вносили 😎.",
                              reply_markup=keyboard.main_markup())
+    # start sending msg
     elif current_state in 'GetUserData:input_admin':
         await message.answer(f"{message.from_user.first_name} розсилка розпочалася 😎.")
-        for row in database.user_list():
+        for row in database.sql_get_user_list():
             try:
                 await bot.send_message(row[1], message.text, reply_markup=keyboard.main_markup(),
                                        disable_notification=True)
@@ -153,6 +158,7 @@ async def handle_state(message: types.Message, state: FSMContext):
                 print(f"Error sending message to user {row[2]}: {str(ex)}")
         await message.answer(f"{message.from_user.first_name} розсилка виконана 😎.",
                              reply_markup=keyboard.main_markup())
+    # finish sending msg
     elif current_state in 'GetUserData:sent_admin':
         await bot.send_message(CHANNEL_ID, f"{message.from_user.first_name} {message.text}.")
         await message.answer(f"{message.from_user.first_name} повідомлення відправлено 😎.",
@@ -171,13 +177,13 @@ async def callback_state(callback_query: types.CallbackQuery):
                                             reply_markup=keyboard.btn_court_list_markup())
         await callback_query.answer('Розділ 📅Дата засідання')
     elif callback_query.data == 'callback_delete':
-        row_number = database.delete_all_user_list_input(callback_query.from_user.id)
+        row_number = database.sql_delete_all_search_value(callback_query.from_user.id)
         await callback_query.message.answer(f"{callback_query.from_user.first_name} всі записи видалено {row_number}.",
                                             reply_markup=keyboard.main_markup())
         await callback_query.answer('Розділ 📩Сповіщення')
     else:
         callback_number = callback_query.data.split('_')
-        database.delete_user_list_input(callback_number[1])
+        database.sql_delete_search_value(callback_query.message.from_user.id, callback_number[1])
         await callback_query.message.answer(f"Видалено {callback_number[1]} залишилося :",
                                             reply_markup=keyboard.btn_callback_list(callback_query.from_user.id))
         await callback_query.answer('Розділ 📩Сповіщення')

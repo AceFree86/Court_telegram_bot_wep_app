@@ -2,73 +2,59 @@ import time
 from config import TOKEN, MASTER
 from telegram.ext import Updater
 from telegram import ParseMode
-import sqlite3
+from data_base import Database
+import string_container as str_container
 import json
-
 
 token = TOKEN
 admin_id = MASTER
-json_file = "data/data_pr.json"
-sqlite_file = "subscriber.db"
 
-
-conn = sqlite3.connect(sqlite_file)
-cur = conn.cursor()
 updater = Updater(token)
+
+database = Database()
 
 
 def send_msg(chat_id, message):
     updater.bot.send_message(chat_id=chat_id, text=message, parse_mode=ParseMode.HTML)
+    time.sleep(20)
 
 
-def check(json_data, sql_data):
-    result = []
-    for client in sql_data:
-        for check_data in json_data:
-            if (
-                check_data["involved"]
-                .lower()
-                .replace("'", " ")
-                .find(client[1].lower().replace('"', " ").replace("'", " "))
-                > -0
-            ):
-                result.append((client, check_data))
-    return result
+def get_meetings():
+    for row in database.sql_get_meetings(1):
+        send_msg(row[1], f"Було знайдено :\n\n{row[2]}")
+        database.sql_update_meetings(row[1], row[2], 2)
 
 
-def del_by_name(name):
-    cur.execute(f'DELETE FROM list_pr WHERE case_involved="{name}"')
-    conn.commit()
+def start_search():
+    for file in str_container.json_files:
+        with open(file['pad'], 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            for row in database.sql_get_user_input(1):
+                search_term = row[2].lower().replace('"', " ").replace("'", " ")
+                filtered_data = [i for i in data if search_term in
+                                 i['involved'].lower().replace('"', " ").replace("'", " ")
+                                 or search_term in i['number']]
+                for i in filtered_data:
+                    msg = (f"Дата/Час : <b>{i['date']}</b> год.\n"
+                           f"Номер справи : {i['number']}\n"
+                           f"Суддя : {i['judge']}\n"
+                           f"__________\n"
+                           f"Сторони по справі : <b>{i['involved']}</b>.\n"
+                           f"Суть : <b>{i['description']}</b>."
+                           f"\n__________")
+                    if not database.sql_exists_meetings(row[1], msg):
+                        database.sql_insert_meetings(row[1], msg, i['number'], 1)
+                    else:
+                        print("yes")
 
 
 def main():
-    with open(json_file, "r", encoding="utf-8") as f:
-        json_data = json.load(f)
-
-    cur.execute("SELECT * FROM list_pr")
-    clients = cur.fetchall()
-    res = check(json_data, clients)
-
-    for row, i in res:
-
-        msg = (
-            f"👋 Доброго дня!\nЗапит <b>{row[1]}</b>, знайдено:"
-            f"\nПеречинський районний суд\n"
-            f"\nДата/Час :\n<b>{i['date']} год.</b>\n\n"
-            f"Номер справи: № {i['number']}\nСуддя :{i['judge']}\n\n"
-            f"Сторони по справі:\n<b>{i['involved']}</b>\n\n"
-            f"Суть позову:\n<b>{i['description']}</b>\n\n"
-        )
-        try:
-            send_msg(row[0], msg)
-            time.sleep(20)
-        except Exception as ex:
-            msg = f"Неможливо {ex} відправити повідомлення:\n{msg}"
-            send_msg(admin_id, msg)
-        else:
-            del_by_name(row[1])
-
-    return res
+    try:
+        start_search()
+        get_meetings()
+    except Exception as ex:
+        msg = f"Неможливо {ex} відправити повідомлення"
+        send_msg(admin_id, msg)
 
 
 main()

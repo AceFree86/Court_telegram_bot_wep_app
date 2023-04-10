@@ -15,7 +15,7 @@ database = Database()
 
 async def show_list(message):
     result = "Статистика користувачів:\n\n" + "\n".join(f"{row[0]}: {row[2]} -  {row[3]};"
-                                                        for row in database.user_list())
+                                                        for row in database.sql_get_user_list())
     await bot.send_message(message.chat.id, result, reply_markup=keyboard.main_markup())
 
 
