@@ -52,6 +52,8 @@ def main():
     try:
         start_search()
         get_meetings()
+        msg = "Push виконано"
+        send_msg(admin_id, msg)
     except Exception as ex:
         msg = f"Неможливо {ex} відправити повідомлення"
         send_msg(admin_id, msg)
