@@ -16,10 +16,11 @@ class Database:
             self.cursor.execute("INSERT INTO list_user_input (USER_ID, USER_INPUT, STATE) VALUES (?, ?, ?)",
                                        tuple(user_input.values()))
 
-    def sql_insert_meetings(self, user_id, meetings, state_number):
+    def sql_insert_meetings(self, user_id, meetings, meetings_n, state_number):
         with self.connection:
-            self.cursor.execute("INSERT INTO list_meetings (USER_ID, MEETINGS, STATE) VALUES (?, ?, ?)",
-                                       (user_id, meetings,state_number,))
+            self.cursor.execute(
+                "INSERT INTO list_meetings (USER_ID, MEETINGS, MEETINGS_NUMBER, STATE) VALUES (?, ?, ?, ?)",
+                                       (user_id, meetings, meetings_n,state_number))
 
     def sql_update_meetings(self, user_id, meetings, state_number):
         with self.connection:
@@ -42,6 +43,11 @@ class Database:
         with self.connection:
             return self.cursor.execute("SELECT * FROM list_meetings WHERE STATE = ?", (user_state,)).fetchall()
 
+    def sql_get_meetings_user(self, user_id):
+        with self.connection:
+            return self.cursor.execute("SELECT * FROM list_meetings WHERE USER_ID = ?", (user_id,)).fetchall()
+
+
     def sql_exists_user(self, user_id):
         with self.connection:
             result = self.cursor.execute("SELECT * FROM list_user WHERE user_id = ?", (user_id,)).fetchmany(1)
@@ -57,6 +63,11 @@ class Database:
         with self.connection:
             result = self.cursor.execute("SELECT * FROM list_meetings WHERE USER_ID = ? AND MEETINGS = ?",
                                          (user_id, meetings)).fetchall()
+            return bool(len(result))
+
+    def sql_exists_meetings_user(self, user_id):
+        with self.connection:
+            result = self.cursor.execute("SELECT * FROM list_meetings WHERE USER_ID = ?", (user_id,)).fetchall()
             return bool(len(result))
 
     def sql_exists_list_id(self, user_id):

@@ -111,7 +111,7 @@ async def handle_message(message: types.Message):
 
 
 @dp.message_handler(state='*', commands=['cancel'])
-@dp.message_handler(Text(equals=['🔙_Назат_', '📋Список Ваших запис'], ignore_case=True), state='*')
+@dp.message_handler(Text(equals=['🔙_Назат_','📋Список Ваших запис'],ignore_case=True), state='*')
 async def handle_cancel_state(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:

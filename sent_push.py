@@ -43,7 +43,7 @@ def start_search():
                            f"Суть : <b>{i['description']}</b>."
                            f"\n__________")
                     if not database.sql_exists_meetings(row[1], msg):
-                        database.sql_insert_meetings(row[1], msg, 1)
+                        database.sql_insert_meetings(row[1], msg, i['number'], 1)
                     else:
                         print("yes")
 
