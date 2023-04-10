@@ -48,9 +48,12 @@ async def handle_list_command(message: types.Message):
 
 @dp.message_handler(commands=['admin'])
 async def handle_admin_command(message: types.Message):
-    if MASTER in message.from_user.id:
-        await message.answer(f"{message.from_user.first_name} пропишіть текст розсилки.",
-                             reply_markup=keyboard.btn_back_markup('🔙_Назат_'))
+    if message.from_user.id != MASTER:
+        print("You are not authorized to use this command.")
+        return
+
+    await message.answer(f"{message.from_user.first_name} пропишіть текст розсилки.",
+                         reply_markup=keyboard.btn_back_markup('🔙_Назат_'))
     await GetUserData.input_admin.set()
 
 
@@ -117,11 +120,11 @@ async def handle_cancel_state(message: types.Message, state: FSMContext):
     text = message.text
     if text == '📋Список Ваших запис':
         if not database.exists_list_id(message.from_user.id):
-            await message.answer(str_container.delete_list,
-                                 reply_markup=keyboard.btn_callback_list(message.from_user.id))
-        else:
             await message.answer(f"{message.from_user.first_name} у Вас не має записів.",
                                  reply_markup=keyboard.main_markup())
+        else:
+            await message.answer(str_container.delete_list,
+                                 reply_markup=keyboard.btn_callback_list(message.from_user.id))
     else:
         await message.answer('OK!👌 скасовано.', reply_markup=keyboard.main_markup())
 
@@ -130,25 +133,30 @@ async def handle_cancel_state(message: types.Message, state: FSMContext):
                            GetUserData.input_admin,
                            GetUserData.sent_admin], content_types=types.ContentTypes.TEXT)
 async def handle_state(message: types.Message, state: FSMContext):
-    if not database.exists_list_input(message.text):
+    current_state = await state.get_state()
+    if not database.exists_list_input(message.text) and current_state in 'GetUserData:input_user':
         user_input = {"USER_ID": message.from_user.id, "USER_INPUT": message.text, "STATE": 1}
         database.sql_add_search_value(user_input)
         await message.answer(f"{message.from_user.first_name} Ви підписалися👍, очікуйте на сповіщення 😎.",
                              reply_markup=keyboard.main_markup())
-    elif database.exists_list_input(message.text):
+    elif database.exists_list_input(message.text) and current_state in 'GetUserData:input_user':
         await message.answer(f"{message.from_user.first_name} 🤚даний запис Ви вже вносили 😎.",
                              reply_markup=keyboard.main_markup())
-
-    current_state = await state.get_state()
-    if current_state in 'GetUserData:input_admin':
+    elif current_state in 'GetUserData:input_admin':
         await message.answer(f"{message.from_user.first_name} розсилка розпочалася 😎.")
         for row in database.user_list():
-            await bot.send_message(row[1], message.text, reply_markup=keyboard.main_markup())
-            await asyncio.sleep(20)
+            try:
+                await bot.send_message(row[1], message.text, reply_markup=keyboard.main_markup(),
+                                       disable_notification=True)
+                await asyncio.sleep(20)
+            except Exception as ex:
+                print(f"Error sending message to user {row[2]}: {str(ex)}")
         await message.answer(f"{message.from_user.first_name} розсилка виконана 😎.",
                              reply_markup=keyboard.main_markup())
     elif current_state in 'GetUserData:sent_admin':
         await bot.send_message(CHANNEL_ID, f"{message.from_user.first_name} {message.text}.")
+        await message.answer(f"{message.from_user.first_name} повідомлення відправлено 😎.",
+                             reply_markup=keyboard.main_markup())
     await state.finish()
 
 
@@ -170,7 +178,7 @@ async def callback_state(callback_query: types.CallbackQuery):
     else:
         callback_number = callback_query.data.split('_')
         database.delete_user_list_input(callback_number[1])
-        await callback_query.message.answer(f"Зі списка видалено {callback_number[1]} залишилося :",
+        await callback_query.message.answer(f"Видалено {callback_number[1]} залишилося :",
                                             reply_markup=keyboard.btn_callback_list(callback_query.from_user.id))
         await callback_query.answer('Розділ 📩Сповіщення')
 
