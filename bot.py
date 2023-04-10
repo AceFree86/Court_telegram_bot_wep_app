@@ -31,8 +31,8 @@ class GetUserData(StatesGroup):
 @dp.message_handler(commands=["start", "help"])
 async def start(message: types.Message):
     if message.chat.type == 'private':
-        if not database.sql_user_exists(message.from_user.id):
-            database.sql_add_user(message.from_user.id, message.from_user.first_name)
+        if not database.sql_exists_user(message.from_user.id):
+            database.sql_insert_user(message.from_user.id, message.from_user.first_name)
         await message.answer(f"👋Доброго дня {message.from_user.first_name}!")
         await asyncio.sleep(1)
         with open('foto/PRC.jpg', 'rb') as foto:
@@ -138,7 +138,7 @@ async def handle_state(message: types.Message, state: FSMContext):
     if not database.sql_exists_list_input(message.from_user.id,
                                           message.text) and current_state in 'GetUserData:input_user':
         user_input = {"USER_ID": message.from_user.id, "USER_INPUT": message.text, "STATE": 1}
-        database.sql_add_search_value(user_input)
+        database.sql_insert_search_value(user_input)
         await message.answer(f"{message.from_user.first_name} Ви підписалися👍, очікуйте на сповіщення 😎.",
                              reply_markup=keyboard.main_markup())
     # if input is repeating
@@ -149,7 +149,7 @@ async def handle_state(message: types.Message, state: FSMContext):
     # start sending msg
     elif current_state in 'GetUserData:input_admin':
         await message.answer(f"{message.from_user.first_name} розсилка розпочалася 😎.")
-        for row in database.sql_user_list():
+        for row in database.sql_get_user_list():
             try:
                 await bot.send_message(row[1], message.text, reply_markup=keyboard.main_markup(),
                                        disable_notification=True)

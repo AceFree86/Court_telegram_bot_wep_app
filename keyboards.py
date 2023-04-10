@@ -69,7 +69,7 @@ def btn_push_markup():
 
 def btn_callback_list(user_id):
     buttons = [InlineKeyboardButton(text=f"💼{row[2]}", callback_data=f"callback_{row[2]}")
-               for row in database.sql_user_list_input(user_id)]
+               for row in database.sql_get_user_list_input(user_id)]
     return (InlineKeyboardMarkup(row_width=1)
             .add(*buttons)
             .add(InlineKeyboardButton(text="🗑Видалити все", callback_data='callback_delete'))
